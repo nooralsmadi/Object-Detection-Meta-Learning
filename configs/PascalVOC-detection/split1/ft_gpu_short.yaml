@@ -1,0 +1,33 @@
+_BASE_: "../../Base-RCNN-FPN.yaml"
+
+MODEL:
+  WEIGHTS: "detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl"
+  MASK_ON: False
+  RESNETS:
+    DEPTH: 50                # ← matches R-50 weights
+  ROI_HEADS:
+    NUM_CLASSES: 20
+    OUTPUT_LAYER: "CosineSimOutputLayers"
+    FREEZE_FEAT: True
+  BACKBONE:
+    FREEZE: True
+  PROPOSAL_GENERATOR:
+    FREEZE: True
+
+INPUT:
+  MIN_SIZE_TRAIN: (480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800)
+  MIN_SIZE_TEST: 800
+
+DATASETS:
+  TRAIN: ('voc_2007_trainval_all1_1shot',)
+  TEST:  ('voc_2007_test_all1',)
+
+SOLVER:
+  IMS_PER_BATCH: 16
+  BASE_LR: 0.02             # higher LR speeds up head tuning
+  MAX_ITER: 800             # ≈ 6 min on RTX 3090
+  STEPS: []                 # no LR decay
+  WARMUP_ITERS: 0
+  CHECKPOINT_PERIOD: 200
+
+OUTPUT_DIR: "output/ft_gpu_short"
